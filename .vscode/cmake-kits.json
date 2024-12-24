@@ -30,8 +30,8 @@
         "M68K_CPU": "68000",
         "TOOLCHAIN_PREFIX": "m68k-amiga-elf",
         "TOOLCHAIN_PATH": "${command:amiga.bin-path}/opt",
-        "ACE_DEBUG": "OFF",
-        "ACE_DEBUG_UAE": "OFF"
+        "ACE_DEBUG": "ON",
+        "ACE_DEBUG_UAE": "ON"
       },
       "keep": true
     }

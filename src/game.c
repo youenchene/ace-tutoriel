@@ -5,6 +5,7 @@
 #include <ace/managers/viewport/simplebuffer.h>
 #include <ace/managers/blit.h> // Blitting fns
 #include <ace/utils/palette.h>
+#include <ace/managers/sprite.h> 
 
 
 // Let's make code more readable by giving names to numbers
@@ -23,7 +24,7 @@
 #define PADDLE_SPEED 4
 #define PADDLE_BG_BUFFER_WIDTH CEIL_TO_FACTOR(PADDLE_WIDTH, 16)
 #define BALL_BG_BUFFER_WIDTH CEIL_TO_FACTOR(BALL_WIDTH, 16)
-#define PADDLE_LEFT_BITMAP_OFFSET_Y 0)
+#define PADDLE_LEFT_BITMAP_OFFSET_Y 0
 #define PADDLE_RIGHT_BITMAP_OFFSET_Y PADDLE_HEIGHT
 #define BALL_BITMAP_OFFSET_Y (PADDLE_RIGHT_BITMAP_OFFSET_Y + PADDLE_HEIGHT)
 
@@ -41,6 +42,8 @@ static UWORD uwPaddleLeftPosY = 0;
 static UWORD uwPaddleRightPosY = 0;
 static tBitMap *s_pBmObjects;
 static tBitMap *s_pBmObjectsMask;
+static tSprite *s_pSprite0, *s_pSprite3;
+static tBitMap *s_pSprite0Data, *s_pSprite3Data;
 
 void gameGsCreate(void) {
   s_pView = viewCreate(0, TAG_END);
@@ -97,6 +100,16 @@ void gameGsCreate(void) {
 
   s_hasBackgroundToRestore = 0;
 
+  spriteManagerCreate(s_pView, 0); // For raw copper mode, pass position on
+                                   // copperlist for sprite initialization.
+
+
+  s_pSprite0Data = bitmapCreate(16, 34, 2, BMF_CLEAR); // 16x32 2BPP
+  s_pSprite3Data = bitmapCreate(16, 34, 2, BMF_CLEAR); // 16x32 2BPP
+  s_pSprite0 = spriteAdd(0, s_pSprite0Data); // Add sprite to channel 0
+  s_pSprite3 = spriteAdd(3, s_pSprite3Data); // Add second sprite to channel 3
+                                   
+  systemSetDmaBit(DMAB_SPRITE, 1); // Enable sprite DMA.
 
   systemUnuse();
 
@@ -179,7 +192,15 @@ void gameGsLoop(void) {
     (s_pVpMain->uwHeight - BALL_WIDTH) / 2,
     BALL_WIDTH, BALL_WIDTH, s_pBmObjectsMask->Planes[0]
   );
-//---------------------------------------------------------------- NEW STUFF END
+
+  spriteProcessChannel(0);
+  spriteProcessChannel(3);
+
+
+
+  copProcessBlocks();
+
+
   vPortWaitForEnd(s_pVpMain);
 }
 
@@ -191,6 +212,14 @@ void gameGsDestroy(void) {
   bitmapDestroy(s_pBmPaddleBallBg);
   bitmapDestroy(s_pBmObjects);
   bitmapDestroy(s_pBmObjectsMask);
+
+  bitmapDestroy(s_pSprite0Data);
+  bitmapDestroy(s_pSprite3Data);
+  spriteRemove(s_pSprite0);
+  spriteRemove(s_pSprite3);
+
+  systemSetDmaBit(DMAB_SPRITE, 0); // Disable sprite DMA
+  spriteManagerDestroy();
 
   // This will also destroy all associated viewports and viewport managers
   viewDestroy(s_pView);
