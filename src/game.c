@@ -160,17 +160,17 @@ void gameGsLoop(void) {
   );
   s_hasBackgroundToRestore = 1;
  // Draw left paddle
-  blitUnsafeCopyMask(s_pBmObjects, 0, PADDLE_LEFT_BITMAP_OFFSET_Y , s_pMainBuffer->pBack, 0, uwPaddleLeftPosY,PADDLE_WIDTH, PADDLE_HEIGHT, s_pBmObjectsMask->Planes[0]);
+  blitCopyMask(s_pBmObjects, 0, PADDLE_LEFT_BITMAP_OFFSET_Y , s_pMainBuffer->pBack, 0, uwPaddleLeftPosY,PADDLE_WIDTH, PADDLE_HEIGHT, s_pBmObjectsMask->Planes[0]);
 
   // Draw right paddle
-  blitUnsafeCopyMask(
+  blitCopyMask(
     s_pBmObjects, 0, PADDLE_RIGHT_BITMAP_OFFSET_Y,
     s_pMainBuffer->pBack, uwPaddleRightPosX, uwPaddleRightPosY,
     PADDLE_WIDTH, PADDLE_HEIGHT, s_pBmObjectsMask->Planes[0]
   );
 
   // Draw ball
-  blitUnsafeCopyMask(
+  blitCopyMask(
     s_pBmObjects, 0, BALL_BITMAP_OFFSET_Y,
     s_pMainBuffer->pBack,
     // x center: half of screen width minus half of ball
